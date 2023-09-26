@@ -3,12 +3,11 @@ module github.com/remote-tech/chirpstack-fuota-server
 go 1.15
 
 require (
-	github.com/remote-tech/chirpstack-api/go/v3 v3.10.1
 	github.com/brocaar/lorawan v0.0.0-20201030140234-f23da2d4a303
 	github.com/gofrs/uuid v3.3.0+incompatible
 	github.com/golang-migrate/migrate/v4 v4.14.1
 	github.com/golang/mock v1.4.4
-	github.com/golang/protobuf v1.4.3
+	github.com/golang/protobuf v1.5.0
 	github.com/goreleaser/goreleaser v0.106.0
 	github.com/goreleaser/nfpm v0.11.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
@@ -17,6 +16,7 @@ require (
 	github.com/mitchellh/mapstructure v1.3.3
 	github.com/pkg/errors v0.9.1
 	github.com/rakyll/statik v0.1.7
+	github.com/remote-tech/chirpstack-api/go/v3 v3.10.2
 	github.com/sirupsen/logrus v1.7.0
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/viper v1.7.1
@@ -24,5 +24,5 @@ require (
 	golang.org/x/mod v0.4.0 // indirect
 	golang.org/x/tools v0.0.0-20210108195828-e2f9c7f1fc8e // indirect
 	google.golang.org/grpc v1.33.1
-	google.golang.org/protobuf v1.25.0
+	google.golang.org/protobuf v1.31.0
 )
