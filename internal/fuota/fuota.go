@@ -17,9 +17,9 @@ import (
 
 	"github.com/remote-tech/chirpstack-api/go/v3/as/external/api"
 	"github.com/remote-tech/chirpstack-api/go/v3/as/integration"
-	"github.com/brocaar/chirpstack-fuota-server/internal/client/as"
-	"github.com/brocaar/chirpstack-fuota-server/internal/eventhandler"
-	"github.com/brocaar/chirpstack-fuota-server/internal/storage"
+	"github.com/remote-tech/chirpstack-fuota-server/internal/client/as"
+	"github.com/remote-tech/chirpstack-fuota-server/internal/eventhandler"
+	"github.com/remote-tech/chirpstack-fuota-server/internal/storage"
 	"github.com/brocaar/lorawan"
 	"github.com/brocaar/lorawan/applayer/fragmentation"
 	"github.com/brocaar/lorawan/applayer/multicastsetup"

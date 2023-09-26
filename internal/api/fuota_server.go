@@ -9,8 +9,8 @@ import (
 
 	"github.com/remote-tech/chirpstack-api/go/v3/as/external/api"
 	fapi "github.com/remote-tech/chirpstack-api/go/v3/fuota"
-	"github.com/brocaar/chirpstack-fuota-server/internal/fuota"
-	"github.com/brocaar/chirpstack-fuota-server/internal/storage"
+	"github.com/remote-tech/chirpstack-fuota-server/internal/fuota"
+	"github.com/remote-tech/chirpstack-fuota-server/internal/storage"
 	"github.com/brocaar/lorawan"
 )
 

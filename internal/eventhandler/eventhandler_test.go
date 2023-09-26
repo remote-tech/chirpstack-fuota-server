@@ -15,8 +15,8 @@ import (
 	"github.com/remote-tech/chirpstack-api/go/v3/as/external/api"
 	"github.com/remote-tech/chirpstack-api/go/v3/as/integration"
 	"github.com/remote-tech/chirpstack-api/go/v3/gw"
-	"github.com/brocaar/chirpstack-fuota-server/internal/client/as"
-	"github.com/brocaar/chirpstack-fuota-server/internal/test"
+	"github.com/remote-tech/chirpstack-fuota-server/internal/client/as"
+	"github.com/remote-tech/chirpstack-fuota-server/internal/test"
 	"github.com/brocaar/lorawan/applayer/clocksync"
 )
 

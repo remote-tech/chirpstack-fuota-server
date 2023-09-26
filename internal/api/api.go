@@ -13,7 +13,7 @@ import (
 	"google.golang.org/grpc/credentials"
 
 	"github.com/remote-tech/chirpstack-api/go/v3/fuota"
-	"github.com/brocaar/chirpstack-fuota-server/internal/config"
+	"github.com/remote-tech/chirpstack-fuota-server/internal/config"
 )
 
 func Setup(conf *config.Config) error {

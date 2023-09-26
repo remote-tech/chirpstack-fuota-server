@@ -9,11 +9,11 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	"github.com/brocaar/chirpstack-fuota-server/internal/api"
-	"github.com/brocaar/chirpstack-fuota-server/internal/client/as"
-	"github.com/brocaar/chirpstack-fuota-server/internal/config"
-	"github.com/brocaar/chirpstack-fuota-server/internal/eventhandler"
-	"github.com/brocaar/chirpstack-fuota-server/internal/storage"
+	"github.com/remote-tech/chirpstack-fuota-server/internal/api"
+	"github.com/remote-tech/chirpstack-fuota-server/internal/client/as"
+	"github.com/remote-tech/chirpstack-fuota-server/internal/config"
+	"github.com/remote-tech/chirpstack-fuota-server/internal/eventhandler"
+	"github.com/remote-tech/chirpstack-fuota-server/internal/storage"
 )
 
 func run(cmd *cobra.Command, args []string) error {
