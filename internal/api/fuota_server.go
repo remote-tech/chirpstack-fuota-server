@@ -33,6 +33,7 @@ func (a *FUOTAServerAPI) CreateDeployment(ctx context.Context, req *fapi.CreateD
 		MulticastTimeout:                  uint8(req.GetDeployment().MulticastTimeout),
 		FragSize:                          int(req.GetDeployment().FragmentationFragmentSize),
 		Payload:                           req.GetDeployment().Payload,
+		RedundancyMode:                    int(req.GetDeployment().FragmentationRedundancyMode),
 		Redundancy:                        int(req.GetDeployment().FragmentationRedundancy),
 		FragmentationSessionIndex:         uint8(req.GetDeployment().FragmentationSessionIndex),
 		FragmentationMatrix:               uint8(req.GetDeployment().FragmentationMatrix),
@@ -151,6 +152,9 @@ func (a *FUOTAServerAPI) GetDeploymentStatus(ctx context.Context, req *fapi.GetD
 		var dd fapi.DeploymentDeviceStatus
 		var err error
 
+		dd.DevEui = make([]byte, len(device.DevEUI))
+		copy(dd.DevEui, device.DevEUI[:])
+
 		dd.CreatedAt, err = ptypes.TimestampProto(device.CreatedAt)
 		if err != nil {
 			return nil, err
@@ -229,4 +233,39 @@ func (a *FUOTAServerAPI) GetDeploymentDeviceLogs(ctx context.Context, req *fapi.
 	}
 
 	return &resp, nil
+}
+
+// DeleteDeployment removes the given FUOTA deployment.
+func (a *FUOTAServerAPI) DeleteDeployment(ctx context.Context, req *fapi.GetDeploymentStatusRequest) (*fapi.CreateDeploymentResponse, error) {
+	var id uuid.UUID
+	copy(id[:], req.GetId())
+
+	// check if it exists
+	d, err := storage.GetDeployment(ctx, storage.DB(), id)
+	if err != nil {
+		return nil, err
+	}
+
+	// // delete multicast
+	// log.WithField("deployment_id", d.ID).Info("fuota: deleting multicast-group")
+	// _, err1 := as.MulticastGroupClient().Delete(ctx, &api.DeleteMulticastGroupRequest{
+	// 	Id: d.multicastGroupID,
+	// })
+	// if err1 != nil {
+	// 	return nil, fmt.Errorf("delete multicast-group error: %w", err1)
+	// }
+	// log.WithFields(log.Fields{
+	// 	"deployment_id":      d.ID,
+	// 	"multicast_group_id": d.multicastGroupID,
+	// }).Info("fuota: multicast-group deleted")
+
+	// delete from db
+	err2 := storage.DeleteDeployment(ctx, storage.DB(), &d)
+	if err2 != nil {
+		return nil, err2
+	}
+
+	return &fapi.CreateDeploymentResponse{
+		Id: d.ID.Bytes(),
+	}, nil 
 }

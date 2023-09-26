@@ -121,6 +121,9 @@ type DeploymentOptions struct {
 	// Payload defines the FUOTA payload.
 	Payload []byte
 
+	// Redundancy Mode (0 = 50% XOR / 1 = LDPC).
+	RedundancyMode int
+
 	// Redundancy (in number of packets).
 	Redundancy int
 
@@ -1281,7 +1284,17 @@ func (d *Deployment) stepEnqueue(ctx context.Context) error {
 
 	// fragment the payload
 	padding := (d.opts.FragSize - (len(d.opts.Payload) % d.opts.FragSize)) % d.opts.FragSize
-	fragments, err := fragmentation.Encode(append(d.opts.Payload, make([]byte, padding)...), d.opts.FragSize, d.opts.Redundancy)
+
+	var fragments [][]byte
+	var err error
+
+	if d.opts.RedundancyMode == 0 {
+		log.WithField("deployment_id", d.GetID()).Info("fuota: Generating redundancy frames using XOR")
+		fragments, err = GenerateXORFragments(append(d.opts.Payload, make([]byte, padding)...), d.opts.FragSize)
+	} else {
+		log.WithField("deployment_id", d.GetID()).Info("fuota: Generating redundancy frames using LDPC")
+		fragments, err = fragmentation.Encode(append(d.opts.Payload, make([]byte, padding)...), d.opts.FragSize, d.opts.Redundancy)
+	}
 	if err != nil {
 		return fmt.Errorf("fragment payload error: %w", err)
 	}
