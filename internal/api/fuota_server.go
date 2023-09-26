@@ -7,8 +7,8 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/brocaar/chirpstack-api/go/v3/as/external/api"
-	fapi "github.com/brocaar/chirpstack-api/go/v3/fuota"
+	"github.com/remote-tech/chirpstack-api/go/v3/as/external/api"
+	fapi "github.com/remote-tech/chirpstack-api/go/v3/fuota"
 	"github.com/brocaar/chirpstack-fuota-server/internal/fuota"
 	"github.com/brocaar/chirpstack-fuota-server/internal/storage"
 	"github.com/brocaar/lorawan"

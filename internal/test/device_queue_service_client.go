@@ -6,7 +6,7 @@ package test
 
 import (
 	context "context"
-	api "github.com/brocaar/chirpstack-api/go/v3/as/external/api"
+	api "github.com/remote-tech/chirpstack-api/go/v3/as/external/api"
 	gomock "github.com/golang/mock/gomock"
 	grpc "google.golang.org/grpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"

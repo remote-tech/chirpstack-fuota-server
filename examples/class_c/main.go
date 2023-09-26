@@ -10,7 +10,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"google.golang.org/grpc"
 
-	"github.com/brocaar/chirpstack-api/go/v3/fuota"
+	"github.com/remote-tech/chirpstack-api/go/v3/fuota"
 	"github.com/brocaar/lorawan"
 	"github.com/brocaar/lorawan/applayer/multicastsetup"
 )

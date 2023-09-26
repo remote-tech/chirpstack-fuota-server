@@ -14,7 +14,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/brocaar/chirpstack-api/go/v3/as/integration"
+	"github.com/remote-tech/chirpstack-api/go/v3/as/integration"
 	"github.com/brocaar/chirpstack-fuota-server/internal/config"
 	"github.com/brocaar/lorawan/applayer/clocksync"
 )

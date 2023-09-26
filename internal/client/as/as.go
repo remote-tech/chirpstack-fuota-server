@@ -9,7 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
-	"github.com/brocaar/chirpstack-api/go/v3/as/external/api"
+	"github.com/remote-tech/chirpstack-api/go/v3/as/external/api"
 	"github.com/brocaar/chirpstack-fuota-server/internal/config"
 )
 
