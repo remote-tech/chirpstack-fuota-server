@@ -14,9 +14,9 @@ import (
 	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
 
+	"github.com/brocaar/lorawan/applayer/clocksync"
 	"github.com/remote-tech/chirpstack-api/go/v3/as/integration"
 	"github.com/remote-tech/chirpstack-fuota-server/internal/config"
-	"github.com/brocaar/lorawan/applayer/clocksync"
 )
 
 var handler *Handler
@@ -137,6 +137,14 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	h.RLock()
 	defer h.RUnlock()
+
+	log.WithFields(log.Fields{
+		"event":   event,
+		"dev_eui": hex.EncodeToString(uplinkEvent.DevEui),
+		"f_cnt":   uplinkEvent.FCnt,
+		"f_port":  uplinkEvent.FPort,
+		"data":    hex.EncodeToString(uplinkEvent.Data),
+	}).Debug("eventhandler: event received after defer h.RUnlock ")
 
 	if uint8(uplinkEvent.FPort) == clocksync.DefaultFPort {
 		// Handle the clocksync in any case as it is requested by the device. Depending
