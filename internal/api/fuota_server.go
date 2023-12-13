@@ -10,6 +10,7 @@ import (
 	"github.com/remote-tech/chirpstack-api/go/v3/as/external/api"
 	fapi "github.com/remote-tech/chirpstack-api/go/v3/fuota"
 	"github.com/remote-tech/chirpstack-fuota-server/internal/fuota"
+	"github.com/remote-tech/chirpstack-fuota-server/internal/eventhandler"
 	"github.com/remote-tech/chirpstack-fuota-server/internal/storage"
 	"github.com/brocaar/lorawan"
 )
@@ -246,18 +247,8 @@ func (a *FUOTAServerAPI) DeleteDeployment(ctx context.Context, req *fapi.GetDepl
 		return nil, err
 	}
 
-	// // delete multicast
-	// log.WithField("deployment_id", d.ID).Info("fuota: deleting multicast-group")
-	// _, err1 := as.MulticastGroupClient().Delete(ctx, &api.DeleteMulticastGroupRequest{
-	// 	Id: d.multicastGroupID,
-	// })
-	// if err1 != nil {
-	// 	return nil, fmt.Errorf("delete multicast-group error: %w", err1)
-	// }
-	// log.WithFields(log.Fields{
-	// 	"deployment_id":      d.ID,
-	// 	"multicast_group_id": d.multicastGroupID,
-	// }).Info("fuota: multicast-group deleted")
+	// remove uplink integration
+	eventhandler.Get().UnregisterUplinkEventFunc(id)
 
 	// delete from db
 	err2 := storage.DeleteDeployment(ctx, storage.DB(), &d)
