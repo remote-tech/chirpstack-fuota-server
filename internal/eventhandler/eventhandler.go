@@ -158,14 +158,13 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 		for id, f := range h.eventHandlers {
-			go func(pl integration.UplinkEvent) {
+			go func(id uuid.UUID, f func(context.Context, integration.UplinkEvent) error, pl integration.UplinkEvent) {
 				if err := f(context.Background(), pl); err != nil {
 					log.WithError(err).WithField("id", id).Error("integration/eventhandler: uplink event handler error")
 				}
-			}(uplinkEvent)
+			}(id, f, uplinkEvent)
 		}
 	}
-
 }
 
 func (h *Handler) unmarshal(b []byte, v proto.Message) error {
