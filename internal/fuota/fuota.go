@@ -908,6 +908,7 @@ devLoop:
 				DeviceQueueItem: &api.DeviceQueueItem{
 					DevEui: devEUI.String(),
 					FPort:  uint32(multicastsetup.DefaultFPort),
+					Confirmed: true,
 					Data:   b,
 				},
 			})
@@ -1033,6 +1034,7 @@ devLoop:
 				DeviceQueueItem: &api.DeviceQueueItem{
 					DevEui: devEUI.String(),
 					FPort:  uint32(fragmentation.DefaultFPort),
+					Confirmed: true,
 					Data:   b,
 				},
 			})
@@ -1166,6 +1168,7 @@ devLoop:
 				DeviceQueueItem: &api.DeviceQueueItem{
 					DevEui: devEUI.String(),
 					FPort:  uint32(multicastsetup.DefaultFPort),
+					Confirmed: true,
 					Data:   b,
 				},
 			})
@@ -1297,6 +1300,7 @@ devLoop:
 				DeviceQueueItem: &api.DeviceQueueItem{
 					DevEui: devEUI.String(),
 					FPort:  uint32(multicastsetup.DefaultFPort),
+					Confirmed: true,
 					Data:   b,
 				},
 			})
@@ -1516,6 +1520,7 @@ devLoop:
 				DeviceQueueItem: &api.DeviceQueueItem{
 					DevEui: devEUI.String(),
 					FPort:  uint32(fragmentation.DefaultFPort),
+					Confirmed: true,
 					Data:   b,
 				},
 			})
