@@ -10,6 +10,7 @@ import (
 	"github.com/brocaar/lorawan"
 	fapi "github.com/remote-tech/chirpstack-fuota-server/v4/api/go"
 	"github.com/remote-tech/chirpstack-fuota-server/v4/internal/fuota"
+	"github.com/remote-tech/chirpstack-fuota-server/v4/internal/eventhandler"
 	"github.com/remote-tech/chirpstack-fuota-server/v4/internal/storage"
 	"github.com/chirpstack/chirpstack/api/go/v4/api"
 	"github.com/chirpstack/chirpstack/api/go/v4/common"
@@ -37,6 +38,7 @@ func (a *FUOTAServerAPI) CreateDeployment(ctx context.Context, req *fapi.CreateD
 		MulticastRegion:                   common.Region(req.GetDeployment().MulticastRegion),
 		FragSize:                          int(req.GetDeployment().FragmentationFragmentSize),
 		Payload:                           req.GetDeployment().Payload,
+		RedundancyMode:                    int(req.GetDeployment().FragmentationRedundancyMode),
 		Redundancy:                        int(req.GetDeployment().FragmentationRedundancy),
 		FragmentationSessionIndex:         uint8(req.GetDeployment().FragmentationSessionIndex),
 		FragmentationMatrix:               uint8(req.GetDeployment().FragmentationMatrix),
@@ -246,4 +248,29 @@ func (a *FUOTAServerAPI) GetDeploymentDeviceLogs(ctx context.Context, req *fapi.
 	}
 
 	return &resp, nil
+}
+
+// DeleteDeployment removes the given FUOTA deployment.
+func (a *FUOTAServerAPI) DeleteDeployment(ctx context.Context, req *fapi.GetDeploymentStatusRequest) (*fapi.CreateDeploymentResponse, error) {
+	var id uuid.UUID
+	copy(id[:], req.GetId())
+
+	// check if it exists
+	d, err := storage.GetDeployment(ctx, storage.DB(), id)
+	if err != nil {
+		return nil, err
+	}
+
+	// remove uplink integration
+	eventhandler.Get().UnregisterUplinkEventFunc(id)
+
+	// delete from db
+	err2 := storage.DeleteDeployment(ctx, storage.DB(), &d)
+	if err2 != nil {
+		return nil, err2
+	}
+
+	return &fapi.CreateDeploymentResponse{
+		Id: d.ID.String(),
+	}, nil 
 }

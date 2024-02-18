@@ -118,3 +118,42 @@ func UpdateDeployment(ctx context.Context, db sqlx.Execer, d *Deployment) error 
 
 	return nil
 }
+
+// DeleteDeployment deletes the given Deployment.
+func DeleteDeployment(ctx context.Context, db sqlx.Execer, d *Deployment) error {
+	// delete devices
+	res1, err1 := db.Exec(`delete from deployment_device where deployment_id = $1`, d.ID)
+	if err1 != nil {
+		return fmt.Errorf("sql delete error: %w", err1)
+	}
+	ra1, err1 := res1.RowsAffected()
+	if err1 != nil {
+		return fmt.Errorf("get rows affected error: %w", err1)
+	}
+	if ra1 == 0 {
+		return ErrDoesNotExist
+	}
+
+	log.WithFields(log.Fields{
+		"id": d.ID,
+	}).Info("storage: deployment deleted")
+
+	// delete deployment
+	res, err := db.Exec(`delete from deployment where id = $1`, d.ID)
+	if err != nil {
+		return fmt.Errorf("sql delete error: %w", err)
+	}
+	ra, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("get rows affected error: %w", err)
+	}
+	if ra == 0 {
+		return ErrDoesNotExist
+	}
+
+	log.WithFields(log.Fields{
+		"id": d.ID,
+	}).Info("storage: deployment deleted")
+
+	return nil
+}

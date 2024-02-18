@@ -125,6 +125,9 @@ type DeploymentOptions struct {
 	// Payload defines the FUOTA payload.
 	Payload []byte
 
+	// Redundancy Mode (0 = 50% XOR / 1 = LDPC).
+	RedundancyMode int
+
 	// Redundancy (in number of packets).
 	Redundancy int
 
@@ -280,7 +283,12 @@ func (d *Deployment) Run(ctx context.Context) error {
 	}
 
 	for _, f := range steps {
-		if err := f(ctx); err != nil {
+		// if the deployment has been deleted, stop
+		depl, err := storage.GetDeployment(ctx, storage.DB(), d.GetID())
+		if (err != nil) || (depl.ID != d.GetID()) {
+			d.stepDeleteMulticastGroup(ctx)
+			break;			
+		} else if err := f(ctx); err != nil {
 			return err
 		}
 	}
@@ -292,6 +300,12 @@ func (d *Deployment) Run(ctx context.Context) error {
 // In case it does not match one of the FUOTA ports or DevEUI within the
 // deployment, the uplink is silently discarded.
 func (d *Deployment) HandleUplinkEvent(ctx context.Context, pl integration.UplinkEvent) error {
+	// if the deployment has been deleted, stop
+	depl, _err := storage.GetDeployment(ctx, storage.DB(), d.GetID())
+	if (_err != nil) || (depl.ID != d.GetID()) {
+		return nil			
+	}
+
 	var devEUI lorawan.EUI64
 	if err := devEUI.UnmarshalText([]byte(pl.GetDeviceInfo().GetDevEui())); err != nil {
 		return err
@@ -702,6 +716,12 @@ func (d *Deployment) handleFragSessionStatusAns(ctx context.Context, devEUI lora
 func (d *Deployment) stepCreateMulticastGroup(ctx context.Context) error {
 	log.WithField("deployment_id", d.GetID()).Debug("fuota: stepCreateMulticastGroup funtion called")
 
+	// if the deployment has been deleted, stop
+	depl, _err := storage.GetDeployment(ctx, storage.DB(), d.GetID())
+	if (_err != nil) || (depl.ID != d.GetID()) {
+		return nil			
+	}
+
 	// generate randomd devaddr
 	if _, err := rand.Read(d.mcAddr[:]); err != nil {
 		return fmt.Errorf("read random bytes error: %w", err)
@@ -759,6 +779,12 @@ func (d *Deployment) stepCreateMulticastGroup(ctx context.Context) error {
 // We don't want to cleanup the multicast-group before the multicast-session has
 // expired.
 func (d *Deployment) stepWaitUntilTimeout(ctx context.Context) error {
+	// if the deployment has been deleted, stop
+	depl, _err := storage.GetDeployment(ctx, storage.DB(), d.GetID())
+	if (_err != nil) || (depl.ID != d.GetID()) {
+		return nil			
+	}
+
 	timeDiff := d.sessionEndTime.Sub(time.Now())
 	if timeDiff > 0 {
 		log.WithFields(log.Fields{
@@ -794,6 +820,12 @@ func (d *Deployment) stepDeleteMulticastGroup(ctx context.Context) error {
 func (d *Deployment) stepAddDevicesToMulticastGroup(ctx context.Context) error {
 	log.WithField("deployment_id", d.GetID()).Info("fuota: add devices to multicast-group")
 
+	// if the deployment has been deleted, stop
+	depl, _err := storage.GetDeployment(ctx, storage.DB(), d.GetID())
+	if (_err != nil) || (depl.ID != d.GetID()) {
+		return nil			
+	}
+
 	for devEUI := range d.opts.Devices {
 		log.WithFields(log.Fields{
 			"deployment_id":      d.GetID(),
@@ -816,10 +848,22 @@ func (d *Deployment) stepAddDevicesToMulticastGroup(ctx context.Context) error {
 func (d *Deployment) stepMulticastSetup(ctx context.Context) error {
 	log.WithField("deployment_id", d.GetID()).Info("fuota: starting multicast-setup for devices")
 
+	// if the deployment has been deleted, stop
+	depl, _err := storage.GetDeployment(ctx, storage.DB(), d.GetID())
+	if (_err != nil) || (depl.ID != d.GetID()) {
+		return nil			
+	}
+
 	attempt := 0
 
 devLoop:
 	for {
+		// if the deployment has been deleted, stop
+		depl, _err2 := storage.GetDeployment(ctx, storage.DB(), d.GetID())
+		if (_err2 != nil) || (depl.ID != d.GetID()) {
+			return nil			
+		}
+
 		attempt += 1
 		if attempt > d.opts.UnicastAttemptCount {
 			log.WithField("deployment_id", d.GetID()).Warning("fuota: multicast-setup reached max. number of attepts, some devices did not complete")
@@ -871,6 +915,7 @@ devLoop:
 				QueueItem: &api.DeviceQueueItem{
 					DevEui: devEUI.String(),
 					FPort:  uint32(multicastsetup.DefaultFPort),
+					Confirmed: true,
 					Data:   b,
 				},
 			})
@@ -904,7 +949,8 @@ devLoop:
 
 		select {
 		// sleep until next retry
-		case <-time.After(d.opts.UnicastTimeout):
+		// case <-time.After(d.opts.UnicastTimeout):
+		case <-time.After(60 * time.Second):
 			continue devLoop
 		// terminate when all devices have been setup
 		case <-d.multicastSetupDone:
@@ -929,12 +975,24 @@ devLoop:
 func (d *Deployment) stepFragmentationSessionSetup(ctx context.Context) error {
 	log.WithField("deployment_id", d.GetID()).Info("fuota: starting fragmentation-session setup for devices")
 
+	// if the deployment has been deleted, stop
+	depl, _err := storage.GetDeployment(ctx, storage.DB(), d.GetID())
+	if (_err != nil) || (depl.ID != d.GetID()) {
+		return nil			
+	}
+
 	attempt := 0
 	padding := (d.opts.FragSize - (len(d.opts.Payload) % d.opts.FragSize)) % d.opts.FragSize
 	nbFrag := (len(d.opts.Payload) + padding) / d.opts.FragSize
 
 devLoop:
 	for {
+		// if the deployment has been deleted, stop
+		depl, _err2 := storage.GetDeployment(ctx, storage.DB(), d.GetID())
+		if (_err2 != nil) || (depl.ID != d.GetID()) {
+			return nil			
+		}
+
 		attempt += 1
 		if attempt > d.opts.UnicastAttemptCount {
 			log.WithField("deployment_id", d.GetID()).Warning("fuota: fragmentation-session setup reached max. number of attempts, some devices did not complete")
@@ -983,6 +1041,7 @@ devLoop:
 				QueueItem: &api.DeviceQueueItem{
 					DevEui: devEUI.String(),
 					FPort:  uint32(fragmentation.DefaultFPort),
+					Confirmed: true,
 					Data:   b,
 				},
 			})
@@ -1018,7 +1077,8 @@ devLoop:
 
 		select {
 		// sleep until next retry
-		case <-time.After(d.opts.UnicastTimeout):
+		// case <-time.After(d.opts.UnicastTimeout):
+		case <-time.After(60 * time.Second):
 			continue devLoop
 			// terminate when all devices have been setup
 		case <-d.fragmentationSessionSetupDone:
@@ -1045,12 +1105,24 @@ func (d *Deployment) stepMulticastClassBSessionSetup(ctx context.Context) error 
 		return nil
 	}
 
+	// if the deployment has been deleted, stop
+	depl, _err := storage.GetDeployment(ctx, storage.DB(), d.GetID())
+	if (_err != nil) || (depl.ID != d.GetID()) {
+		return nil
+	}
+
 	log.WithField("deployment_id", d.GetID()).Info("fuota: starting multicast class-b session setup for devices")
 
 	attempt := 0
 
 devLoop:
 	for {
+		// if the deployment has been deleted, stop
+		depl, _err2 := storage.GetDeployment(ctx, storage.DB(), d.GetID())
+		if (_err2 != nil) || (depl.ID != d.GetID()) {
+			return nil			
+		}
+
 		attempt += 1
 		if attempt > d.opts.UnicastAttemptCount {
 			log.WithField("deployment_id", d.GetID()).Warning("fuota: multicast class-b session setup reached max. number of attempts, some devices did not complete")
@@ -1103,6 +1175,7 @@ devLoop:
 				QueueItem: &api.DeviceQueueItem{
 					DevEui: devEUI.String(),
 					FPort:  uint32(multicastsetup.DefaultFPort),
+					Confirmed: true,
 					Data:   b,
 				},
 			})
@@ -1137,7 +1210,8 @@ devLoop:
 
 		select {
 		// sleep until next retry
-		case <-time.After(d.opts.UnicastTimeout):
+		// case <-time.After(d.opts.UnicastTimeout):
+		case <-time.After(60 * time.Second):
 			continue devLoop
 		case <-d.multicastSessionSetupDone:
 			log.WithField("deployment_id", d.GetID()).Info("fuota: multicast class-b session setup completed successful for all devices")
@@ -1163,19 +1237,32 @@ func (d *Deployment) stepMulticastClassCSessionSetup(ctx context.Context) error 
 		return nil
 	}
 
+	// if the deployment has been deleted, stop
+	depl, _err := storage.GetDeployment(ctx, storage.DB(), d.GetID())
+	if (_err != nil) || (depl.ID != d.GetID()) {
+		return nil
+	}
+
 	log.WithField("deployment_id", d.GetID()).Info("fuota: starting multicast class-c session setup for devices")
 
 	attempt := 0
 
 devLoop:
 	for {
+		// if the deployment has been deleted, stop
+		depl, _err2 := storage.GetDeployment(ctx, storage.DB(), d.GetID())
+		if (_err2 != nil) || (depl.ID != d.GetID()) {
+			return nil			
+		}
+
 		attempt += 1
 		if attempt > d.opts.UnicastAttemptCount {
 			log.WithField("deployment_id", d.GetID()).Warning("fuota: multicast class-c session setup reached max. number of attempts, some devices did not complete")
 			break
 		}
 
-		d.sessionStartTime = time.Now().Add(d.opts.UnicastTimeout)
+		// d.sessionStartTime = time.Now().Add(d.opts.UnicastTimeout)
+		d.sessionStartTime = time.Now().Add(time.Duration(20 + 60 * d.opts.UnicastAttemptCount) * time.Second)
 		d.sessionEndTime = d.sessionStartTime.Add(time.Duration(1<<d.opts.MulticastTimeout) * time.Second)
 
 		for devEUI := range d.opts.Devices {
@@ -1220,6 +1307,7 @@ devLoop:
 				QueueItem: &api.DeviceQueueItem{
 					DevEui: devEUI.String(),
 					FPort:  uint32(multicastsetup.DefaultFPort),
+					Confirmed: true,
 					Data:   b,
 				},
 			})
@@ -1253,7 +1341,8 @@ devLoop:
 
 		select {
 		// sleep until next retry
-		case <-time.After(d.opts.UnicastTimeout):
+		// case <-time.After(d.opts.UnicastTimeout):
+		case <-time.After(60 * time.Second):
 			continue devLoop
 		case <-d.multicastSessionSetupDone:
 			log.WithField("deployment_id", d.GetID()).Info("fuota: multicast class-c session setup completed successful for all devices")
@@ -1277,6 +1366,12 @@ devLoop:
 func (d *Deployment) stepEnqueue(ctx context.Context) error {
 	log.WithField("deployment_id", d.GetID()).Info("fuota: starting multicast enqueue")
 
+	// if the deployment has been deleted, stop
+	depl, _err := storage.GetDeployment(ctx, storage.DB(), d.GetID())
+	if (_err != nil) || (depl.ID != d.GetID()) {
+		return nil			
+	}
+
 	timeDiff := d.sessionStartTime.Sub(time.Now())
 	if timeDiff > 0 {
 		log.WithFields(log.Fields{
@@ -1286,9 +1381,25 @@ func (d *Deployment) stepEnqueue(ctx context.Context) error {
 		time.Sleep(timeDiff)
 	}
 
+	// if the deployment has been deleted, stop
+	depl2, _err2 := storage.GetDeployment(ctx, storage.DB(), d.GetID())
+	if (_err2 != nil) || (depl2.ID != d.GetID()) {
+		return nil			
+	}
+
 	// fragment the payload
 	padding := (d.opts.FragSize - (len(d.opts.Payload) % d.opts.FragSize)) % d.opts.FragSize
-	fragments, err := fragmentation.Encode(append(d.opts.Payload, make([]byte, padding)...), d.opts.FragSize, d.opts.Redundancy)
+
+	var fragments [][]byte
+	var err error
+
+	if d.opts.RedundancyMode == 0 {
+		log.WithField("deployment_id", d.GetID()).Info("fuota: Generating redundancy frames using XOR")
+		fragments, err = GenerateXORFragments(append(d.opts.Payload, make([]byte, padding)...), d.opts.FragSize)
+	} else {
+		log.WithField("deployment_id", d.GetID()).Info("fuota: Generating redundancy frames using LDPC")
+		fragments, err = fragmentation.Encode(append(d.opts.Payload, make([]byte, padding)...), d.opts.FragSize, d.opts.Redundancy)
+	}
 	if err != nil {
 		return fmt.Errorf("fragment payload error: %w", err)
 	}
@@ -1341,6 +1452,12 @@ func (d *Deployment) stepEnqueue(ctx context.Context) error {
 }
 
 func (d *Deployment) stepFragSessionStatus(ctx context.Context) error {
+	// if the deployment has been deleted, stop
+	depl, _err := storage.GetDeployment(ctx, storage.DB(), d.GetID())
+	if (_err != nil) || (depl.ID != d.GetID()) {
+		return nil			
+	}
+
 	if d.opts.RequestFragmentationSessionStatus == RequestFragmentationSessionStatusNoRequest {
 		log.WithField("deployment_id", d.GetID()).Info("fuota: skipping fragmentation-session status request as requested")
 		return nil
@@ -1363,6 +1480,12 @@ func (d *Deployment) stepFragSessionStatus(ctx context.Context) error {
 
 devLoop:
 	for {
+		// if the deployment has been deleted, stop
+		depl, _err2 := storage.GetDeployment(ctx, storage.DB(), d.GetID())
+		if (_err2 != nil) || (depl.ID != d.GetID()) {
+			return nil			
+		}
+
 		attempt += 1
 		if attempt > d.opts.UnicastAttemptCount {
 			log.WithField("deployment_id", d.GetID()).Warning("fuota: fragmentation-session status request reached max. number of attempts, some devices did not complete")
@@ -1404,6 +1527,7 @@ devLoop:
 				QueueItem: &api.DeviceQueueItem{
 					DevEui: devEUI.String(),
 					FPort:  uint32(fragmentation.DefaultFPort),
+					Confirmed: true,
 					Data:   b,
 				},
 			})

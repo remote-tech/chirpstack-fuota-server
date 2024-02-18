@@ -69,6 +69,10 @@ service FuotaServerService {
   // DevEUI.
   rpc GetDeploymentDeviceLogs(GetDeploymentDeviceLogsRequest)
       returns (GetDeploymentDeviceLogsResponse) {}
+
+  // DeleteDeployment deletes the given FUOTA deployment.
+  rpc DeleteDeployment(GetDeploymentStatusRequest)
+      returns (CreateDeploymentResponse) {}
 }
 
 enum MulticastGroupType {
@@ -154,6 +158,10 @@ message Deployment {
 
   // Payload.
   bytes payload = 12;
+
+  // Fragmentation redundancy mode.
+  // 0 = 50% XOR | 1 = LDPC
+  uint32 fragmentation_redundancy_mode = 20;
 
   // Fragmentation redundancy.
   // The number represents the additional redundant frames to send.

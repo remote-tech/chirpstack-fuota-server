@@ -29,6 +29,8 @@ type FuotaServerServiceClient interface {
 	// GetDeploymentDeviceLogs returns the FUOTA logs given a deployment ID and
 	// DevEUI.
 	GetDeploymentDeviceLogs(ctx context.Context, in *GetDeploymentDeviceLogsRequest, opts ...grpc.CallOption) (*GetDeploymentDeviceLogsResponse, error)
+	// DeleteDeployment deletes the given FUOTA deployment.
+	DeleteDeployment(ctx context.Context, in *GetDeploymentStatusRequest, opts ...grpc.CallOption) (*CreateDeploymentResponse, error)
 }
 
 type fuotaServerServiceClient struct {
@@ -66,6 +68,15 @@ func (c *fuotaServerServiceClient) GetDeploymentDeviceLogs(ctx context.Context, 
 	return out, nil
 }
 
+func (c *fuotaServerServiceClient) DeleteDeployment(ctx context.Context, in *GetDeploymentStatusRequest, opts ...grpc.CallOption) (*CreateDeploymentResponse, error) {
+	out := new(CreateDeploymentResponse)
+	err := c.cc.Invoke(ctx, "/fuota.FuotaServerService/DeleteDeployment", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FuotaServerServiceServer is the server API for FuotaServerService service.
 // All implementations must embed UnimplementedFuotaServerServiceServer
 // for forward compatibility
@@ -77,6 +88,8 @@ type FuotaServerServiceServer interface {
 	// GetDeploymentDeviceLogs returns the FUOTA logs given a deployment ID and
 	// DevEUI.
 	GetDeploymentDeviceLogs(context.Context, *GetDeploymentDeviceLogsRequest) (*GetDeploymentDeviceLogsResponse, error)
+	// DeleteDeployment deletes the given FUOTA deployment.
+	DeleteDeployment(context.Context, *GetDeploymentStatusRequest) (*CreateDeploymentResponse, error)
 	mustEmbedUnimplementedFuotaServerServiceServer()
 }
 
@@ -92,6 +105,9 @@ func (UnimplementedFuotaServerServiceServer) GetDeploymentStatus(context.Context
 }
 func (UnimplementedFuotaServerServiceServer) GetDeploymentDeviceLogs(context.Context, *GetDeploymentDeviceLogsRequest) (*GetDeploymentDeviceLogsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDeploymentDeviceLogs not implemented")
+}
+func (UnimplementedFuotaServerServiceServer) DeleteDeployment(context.Context, *GetDeploymentStatusRequest) (*CreateDeploymentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteDeployment not implemented")
 }
 func (UnimplementedFuotaServerServiceServer) mustEmbedUnimplementedFuotaServerServiceServer() {}
 
@@ -160,6 +176,24 @@ func _FuotaServerService_GetDeploymentDeviceLogs_Handler(srv interface{}, ctx co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _FuotaServerService_DeleteDeployment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDeploymentStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FuotaServerServiceServer).DeleteDeployment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/fuota.FuotaServerService/DeleteDeployment",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FuotaServerServiceServer).DeleteDeployment(ctx, req.(*GetDeploymentStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // FuotaServerService_ServiceDesc is the grpc.ServiceDesc for FuotaServerService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -178,6 +212,10 @@ var FuotaServerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetDeploymentDeviceLogs",
 			Handler:    _FuotaServerService_GetDeploymentDeviceLogs_Handler,
+		},
+		{
+			MethodName: "DeleteDeployment",
+			Handler:    _FuotaServerService_DeleteDeployment_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
