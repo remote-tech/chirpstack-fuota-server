@@ -12,7 +12,7 @@ import (
 
 	"github.com/brocaar/lorawan"
 	"github.com/brocaar/lorawan/applayer/multicastsetup"
-	fuota "github.com/chirpstack/chirpstack-fuota-server/v4/api/go"
+	fuota "github.com/remote-tech/chirpstack-fuota-server/v4/api/go"
 )
 
 func main() {

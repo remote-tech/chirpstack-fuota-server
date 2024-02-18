@@ -12,8 +12,8 @@ import (
 	"github.com/rakyll/statik/fs"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/chirpstack/chirpstack-fuota-server/v4/internal/config"
-	_ "github.com/chirpstack/chirpstack-fuota-server/v4/internal/migrations"
+	"github.com/remote-tech/chirpstack-fuota-server/v4/internal/config"
+	_ "github.com/remote-tech/chirpstack-fuota-server/v4/internal/migrations"
 )
 
 var (

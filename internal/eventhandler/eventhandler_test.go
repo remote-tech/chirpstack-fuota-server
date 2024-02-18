@@ -13,8 +13,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/brocaar/lorawan/applayer/clocksync"
-	"github.com/chirpstack/chirpstack-fuota-server/v4/internal/client/as"
-	"github.com/chirpstack/chirpstack-fuota-server/v4/internal/test"
+	"github.com/remote-tech/chirpstack-fuota-server/v4/internal/client/as"
+	"github.com/remote-tech/chirpstack-fuota-server/v4/internal/test"
 	"github.com/chirpstack/chirpstack/api/go/v4/api"
 	"github.com/chirpstack/chirpstack/api/go/v4/gw"
 	"github.com/chirpstack/chirpstack/api/go/v4/integration"

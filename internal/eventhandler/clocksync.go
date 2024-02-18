@@ -11,7 +11,7 @@ import (
 	"github.com/brocaar/lorawan"
 	"github.com/brocaar/lorawan/applayer/clocksync"
 	"github.com/brocaar/lorawan/gps"
-	"github.com/chirpstack/chirpstack-fuota-server/v4/internal/client/as"
+	"github.com/remote-tech/chirpstack-fuota-server/v4/internal/client/as"
 	"github.com/chirpstack/chirpstack/api/go/v4/api"
 	"github.com/chirpstack/chirpstack/api/go/v4/integration"
 )

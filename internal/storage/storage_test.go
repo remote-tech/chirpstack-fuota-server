@@ -6,7 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/chirpstack/chirpstack-fuota-server/v4/internal/test"
+	"github.com/remote-tech/chirpstack-fuota-server/v4/internal/test"
 )
 
 type StorageTestSuite struct {

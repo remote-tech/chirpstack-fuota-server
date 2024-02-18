@@ -1,4 +1,4 @@
-module github.com/chirpstack/chirpstack-fuota-server/v4
+module github.com/remote-tech/chirpstack-fuota-server/v4
 
 go 1.15
 

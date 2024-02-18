@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package fuota;
 
-option go_package = "github.com/chirpstack/chirpstack-fuota-server/v4/api/go";
+option go_package = "github.com/remote-tech/chirpstack-fuota-server/v4/api/go";
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";

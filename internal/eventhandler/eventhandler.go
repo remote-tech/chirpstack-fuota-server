@@ -15,7 +15,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/brocaar/lorawan/applayer/clocksync"
-	"github.com/chirpstack/chirpstack-fuota-server/v4/internal/config"
+	"github.com/remote-tech/chirpstack-fuota-server/v4/internal/config"
 	"github.com/chirpstack/chirpstack/api/go/v4/integration"
 )
 

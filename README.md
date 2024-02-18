@@ -41,7 +41,7 @@ make snapshot
 The ChirpStack FUOTA Server provides a [gRPC](https://grpc.io/) API interface
 for scheduling the FUOTA deployments to one or multiple devices under a
 ChirpStack application ID. This API is defined by the
-gRPC [FuotaServerService](https://github.com/chirpstack/chirpstack-fuota-server/blob/master/api/proto/fuota.proto).
+gRPC [FuotaServerService](https://github.com/remote-tech/chirpstack-fuota-server/blob/master/api/proto/fuota.proto).
 
 ## Setup
 
@@ -125,4 +125,4 @@ that can be found at the [LoRa Alliance Resource Hub](https://lora-alliance.org/
 ## License
 
 ChirpStack FUOTA Server is distributed under the MIT license. See also
-[LICENSE](https://github.com/chirpstack/chirpstack-fuota-server/blob/master/LICENSE).
+[LICENSE](https://github.com/remote-tech/chirpstack-fuota-server/blob/master/LICENSE).
