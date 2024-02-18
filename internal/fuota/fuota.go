@@ -1255,7 +1255,7 @@ devLoop:
 		}
 
 		// d.sessionStartTime = time.Now().Add(d.opts.UnicastTimeout)
-		d.sessionStartTime = time.Now().Add(60 * time.Second)
+		d.sessionStartTime = time.Now().Add(time.Duration(20 + 60 * d.opts.UnicastAttemptCount) * time.Second)
 		d.sessionEndTime = d.sessionStartTime.Add(time.Duration(1<<d.opts.MulticastTimeout) * time.Second)
 
 		for devEUI := range d.opts.Devices {
